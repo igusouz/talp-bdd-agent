@@ -181,3 +181,25 @@ Tests are designed to run in any environment without external dependencies. All 
 ```bash
 pytest --cov=app tests/
 ```
+
+## Docker
+
+This project includes Docker support for easier integration and local development. The repository contains a `Dockerfile`, `.dockerignore`, and a `docker-compose.yml` for quick startup.
+
+Basic build and run commands:
+
+```bash
+# Build the image locally
+docker build -t bdd-qa-agent .
+
+# Run the container (provide your .env with real credentials)
+docker run -p 8000:8000 --env-file .env bdd-qa-agent
+
+# Or using docker-compose
+docker compose up --build
+```
+
+Notes:
+- Provide a valid `QA_LLM_API_KEY` (via `.env` or environment) before calling endpoints that use the LLM.
+- For production images prefer a multi-stage build that installs only runtime dependencies (remove `.[dev]`).
+- Consider using a secret manager for API keys instead of embedding in `.env` for CI/CD.
