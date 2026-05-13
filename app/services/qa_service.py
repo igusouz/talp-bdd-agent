@@ -14,12 +14,19 @@ class QAService:
     """Coordinates incoming requests with the LangChain workflow."""
 
     def __init__(self, chain: QAAnalysisChain | None = None) -> None:
-        self._chain = chain or get_qa_chain()
+        # Delay chain creation to avoid initializing LLM clients during
+        # FastAPI dependency resolution (which may occur before body
+        # validation). The chain will be created on first use in
+        # `analyze()` if it was not provided explicitly.
+        self._chain = chain
 
     def analyze(self, request: QARequest) -> QAAnalysisResponse:
         """Analyze a user story and return a structured QA response."""
 
         logger.debug("Received QA request with %s acceptance criteria", len(request.acceptance_criteria))
+        if self._chain is None:
+            self._chain = get_qa_chain()
+
         return self._chain.invoke(request)
 
 
