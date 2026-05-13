@@ -117,3 +117,67 @@ The foundation already separates concerns to allow expansion without rewriting t
 - Keep each agent specialized in one decision type.
 - Centralize routing to avoid scattering logic across routes.
 - Log structured messages with sufficient context for audit and debugging.
+
+## Testing
+
+This project includes comprehensive unit and integration tests that mock external dependencies, allowing you to validate the application without requiring OpenAI API credentials.
+
+### Test Structure
+
+- **tests/conftest.py**: Shared pytest fixtures and mock LLM responses.
+- **tests/test_schemas.py**: Pydantic contract validation tests.
+- **tests/test_chains.py**: LangChain workflow tests with mocked LLM.
+- **tests/test_api.py**: FastAPI route tests with mocked service layer.
+
+### Running Tests
+
+Install test dependencies:
+
+```bash
+pip install -e ".[dev]"
+```
+
+Run all tests:
+
+```bash
+pytest
+```
+
+Run specific test file:
+
+```bash
+pytest tests/test_schemas.py
+```
+
+Run with coverage:
+
+```bash
+pip install pytest-cov
+pytest --cov=app tests/
+```
+
+### Test Mocking Strategy
+
+Tests use `unittest.mock.patch` to replace the real `ChatOpenAI` client with a mock that returns structured JSON responses without calling OpenAI's API. This keeps tests fast and dependency-free.
+
+The `conftest.py` provides reusable fixtures:
+
+- `test_client`: FastAPI TestClient for route testing.
+- `mock_qa_response`: Realistic QA analysis response for validation.
+- `mock_llm_response`: Mock LLM response as AIMessage.
+
+### Coverage
+
+Tests validate:
+
+1. **Schema contracts** — Request validation (story required, criteria optional), response completeness, field types.
+2. **Chain workflows** — Initialization, prompt loading, acceptance criteria formatting, mock LLM invocation.
+3. **API routes** — Health check endpoint, QA analysis with valid/invalid payloads, response structure.
+
+### Continuous Integration
+
+Tests are designed to run in any environment without external dependencies. All tests must pass and coverage should stay above 80%:
+
+```bash
+pytest --cov=app tests/
+```
