@@ -86,8 +86,8 @@ class TestQAAnalysisChain:
         """Prompt files can be loaded from disk."""
         from app.chains.qa_chain import _load_prompt
 
-        # System prompt should exist
-        content = _load_prompt("system.md")
+        # Versioned system prompt should exist
+        content = _load_prompt("system/qa.md")
         assert len(content) > 0
         assert "QA" in content or "analysis" in content.lower()
 

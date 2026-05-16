@@ -43,22 +43,27 @@ class TestBDDScenario:
     """Test BDD scenario structure."""
 
     def test_valid_scenario(self) -> None:
-        """A complete scenario with title, type, and gherkin is valid."""
+        """A complete scenario with title and structured steps is valid."""
         scenario = BDDScenario(
             title="User logs in successfully",
             scenario_type="positive",
-            gherkin="Feature: Login\n  Scenario: Valid credentials\n    Given...",
+            given=["the user is on the login page"],
+            when=["the user submits valid credentials"],
+            then=["the dashboard is displayed"],
         )
         assert scenario.title == "User logs in successfully"
         assert scenario.scenario_type == "positive"
         assert scenario.notes == []
+        assert "Given the user is on the login page" in scenario.gherkin
 
     def test_scenario_with_notes(self) -> None:
         """Scenario can include implementation notes."""
         scenario = BDDScenario(
             title="User logs in",
             scenario_type="positive",
-            gherkin="Feature: Login\n  Scenario: ...",
+            given=["the user is on the login page"],
+            when=["the user logs in"],
+            then=["the session is created"],
             notes=["Use test@example.com", "Password: TestPass123"],
         )
         assert len(scenario.notes) == 2
@@ -69,7 +74,9 @@ class TestBDDScenario:
             BDDScenario(
                 title="Test",
                 scenario_type="invalid",  # type: ignore
-                gherkin="...",
+                given=["a precondition"],
+                when=["an action occurs"],
+                then=["an outcome happens"],
             )
 
 
@@ -91,7 +98,9 @@ class TestQAAnalysisResponse:
                 BDDScenario(
                     title="Test",
                     scenario_type="positive",
-                    gherkin="Feature: Test",
+                    given=["a precondition"],
+                    when=["an action occurs"],
+                    then=["an outcome happens"],
                 )
             ],
             negative_cases=["Invalid input"],

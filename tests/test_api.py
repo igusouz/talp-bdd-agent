@@ -132,5 +132,8 @@ class TestQAAnalysisEndpoint:
             scenario = data["bdd_scenarios"][0]
             assert "title" in scenario
             assert "scenario_type" in scenario
+            assert "given" in scenario
+            assert "when" in scenario
+            assert "then" in scenario
             assert "gherkin" in scenario
             assert scenario["scenario_type"] in ["positive", "negative", "edge"]

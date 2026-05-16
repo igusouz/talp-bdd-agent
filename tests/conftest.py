@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
@@ -28,31 +28,25 @@ def mock_qa_response() -> QAAnalysisResponse:
             BDDScenario(
                 title="User receives reset email for valid account",
                 scenario_type="positive",
-                gherkin="Feature: Password Reset\n"
-                "  Scenario: Request reset for registered email\n"
-                "    Given a registered user with email john@example.com\n"
-                "    When the user requests a password reset\n"
-                "    Then a reset email is sent to john@example.com",
+                given=["a registered user with email john@example.com"],
+                when=["the user requests a password reset"],
+                then=["a reset email is sent to john@example.com"],
                 notes=["Email should arrive within 5 minutes."],
             ),
             BDDScenario(
                 title="Reset link expires after 30 minutes",
                 scenario_type="edge",
-                gherkin="Feature: Password Reset\n"
-                "  Scenario: Reset link expires\n"
-                "    Given a valid reset link created 31 minutes ago\n"
-                "    When the user clicks the reset link\n"
-                "    Then the system rejects the request with 'Link expired'",
+                given=["a valid reset link created 31 minutes ago"],
+                when=["the user clicks the reset link"],
+                then=["the system rejects the request with 'Link expired'"],
                 notes=["Verify expiration timestamp in token."],
             ),
             BDDScenario(
                 title="Unregistered email is submitted",
                 scenario_type="negative",
-                gherkin="Feature: Password Reset\n"
-                "  Scenario: Request reset for unknown email\n"
-                "    Given an email not registered in the system\n"
-                "    When the user requests a password reset\n"
-                "    Then the system responds without revealing account status",
+                given=["an email not registered in the system"],
+                when=["the user requests a password reset"],
+                then=["the system responds without revealing account status"],
                 notes=["Prevent user enumeration."],
             ),
         ],
