@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Literal
-
 from pydantic import BaseModel, Field
+
+from app.schemas.bdd import BDDScenario
 
 
 class QARequest(BaseModel):
@@ -15,17 +15,6 @@ class QARequest(BaseModel):
         default_factory=list,
         description="Optional acceptance criteria associated with the story.",
     )
-
-
-class BDDScenario(BaseModel):
-    """Structured BDD scenario returned by the agent."""
-
-    title: str = Field(description="Short scenario title.")
-    scenario_type: Literal["positive", "negative", "edge"] = Field(
-        description="Scenario classification for test planning.",
-    )
-    gherkin: str = Field(description="Scenario written in Gherkin syntax.")
-    notes: list[str] = Field(default_factory=list, description="Useful implementation or validation notes.")
 
 
 class QAAnalysisResponse(BaseModel):
