@@ -10,12 +10,14 @@
 
 ## File layout
 
-- `app/prompts/system.md`: primary instruction set.
-- `app/prompts/few_shots.md`: short examples and counterexamples.
+- `app/prompts/system/`: primary instruction set.
+- `app/prompts/few_shots/`: short examples and counterexamples.
+- `app/prompts/templates/`: human prompt templates.
+- `app/prompts/versions/`: prompt version history and release markers.
 
 ## Recommended pattern
 
-1. Load the system prompt from file.
+1. Load the prompt bundle from the versioned directory tree.
 2. Append only the smallest useful context for the task.
 3. Inject user story and acceptance criteria as structured variables.
 4. Use low temperature for reproducibility.
@@ -31,3 +33,4 @@ This approach makes prompt changes auditable, easy to test, and safer to evolve 
 - Track prompt regression tests with sample stories.
 - Introduce prompt templates per domain once the MVP branches out.
 - Split prompts per agent when multi-agent orchestration is added.
+- Add prompt evaluation baselines for every major prompt version.
