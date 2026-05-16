@@ -34,8 +34,14 @@ app/
   chains/
   core/
   prompts/
+    few_shots/
+    system/
+    templates/
+    versions/
   schemas/
   services/
+tests/
+  evals/
 ```
 
 ## Initial dependencies
@@ -106,8 +112,9 @@ The foundation already separates concerns to allow expansion without rewriting t
 - `chains/` for domain-specific LLM workflows
 - `services/` for orchestration between chains
 - `schemas/` for stable contracts
-- `prompts/` for independent prompt evolution
+- `prompts/` for independent prompt evolution, versioning, and few-shot management
 - `api/routes/` for HTTP exposure without business logic
+- `tests/evals/` for lightweight semantic regression checks
 
 ## Best practices for evolution
 
@@ -117,6 +124,31 @@ The foundation already separates concerns to allow expansion without rewriting t
 - Keep each agent specialized in one decision type.
 - Centralize routing to avoid scattering logic across routes.
 - Log structured messages with sufficient context for audit and debugging.
+
+## Prompt organization
+
+Prompt content is now separated into dedicated folders so each behavior can evolve independently:
+
+- `app/prompts/system/` for system rules
+- `app/prompts/few_shots/` for examples
+- `app/prompts/templates/` for human prompt templates
+- `app/prompts/versions/` for prompt release tracking
+
+This layout makes it easier to test prompt changes, A/B variants, and future agent-specific prompt bundles.
+
+## Evaluation layer
+
+The repository includes a lightweight semantic evaluation layer under `tests/evals/`.
+
+The goal is to validate quality signals such as:
+
+- edge case coverage
+- ambiguity detection
+- negative scenario generation
+- requirement completeness
+- regression prevention during prompt updates
+
+The evals intentionally remain small and JSON-backed so they are easy to extend without introducing additional infrastructure.
 
 ## Testing
 
@@ -128,6 +160,7 @@ This project includes comprehensive unit and integration tests that mock externa
 - **tests/test_schemas.py**: Pydantic contract validation tests.
 - **tests/test_chains.py**: LangChain workflow tests with mocked LLM.
 - **tests/test_api.py**: FastAPI route tests with mocked service layer.
+- **tests/evals/**: JSON-backed semantic regression checks.
 
 ### Running Tests
 
