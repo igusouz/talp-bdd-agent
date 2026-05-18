@@ -105,26 +105,6 @@ Output:
 3. Copy `.env.example` to `.env` and configure credentials.
 4. Run the API with `uvicorn app.main:app --reload`.
 
-## Future multi-agent integration
-
-The foundation already separates concerns to allow expansion without rewriting the core:
-
-- `chains/` for domain-specific LLM workflows
-- `services/` for orchestration between chains
-- `schemas/` for stable contracts
-- `prompts/` for independent prompt evolution, versioning, and few-shot management
-- `api/routes/` for HTTP exposure without business logic
-- `tests/evals/` for lightweight semantic regression checks
-
-## Best practices for evolution
-
-- Make each new capability a standalone chain or service.
-- Prefer typed and validated outputs.
-- Use versioned prompts with minimal examples.
-- Keep each agent specialized in one decision type.
-- Centralize routing to avoid scattering logic across routes.
-- Log structured messages with sufficient context for audit and debugging.
-
 ## Prompt organization
 
 Prompt content is now separated into dedicated folders so each behavior can evolve independently:
