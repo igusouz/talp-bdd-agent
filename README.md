@@ -25,7 +25,7 @@ The first version needs to be fast to implement, predictable, and easy to evolve
 - Versioned prompts outside business code
 - A simple service layer between route and chain to facilitate future multi-agent orchestration
 
-## Recommended structure
+## Project structure
 
 ```text
 app/
