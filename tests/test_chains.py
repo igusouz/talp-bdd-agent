@@ -55,10 +55,7 @@ class TestQAAnalysisChain:
             chain._chain = mock_chain
 
             # Invoke chain
-            request = QARequest(
-                story="As a user, I want to reset my password",
-                acceptance_criteria=["Email is sent", "Link expires in 30 minutes"],
-            )
+            request = QARequest(story="As a user, I want to reset my password")
             response = chain.invoke(request)
 
             # Verify response structure

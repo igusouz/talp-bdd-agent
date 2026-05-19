@@ -23,7 +23,7 @@ class QAService:
     def analyze(self, request: QARequest) -> QAAnalysisResponse:
         """Analyze a user story and return a structured QA response."""
 
-        logger.debug("Received QA request with %s acceptance criteria", len(request.acceptance_criteria))
+        logger.debug("Received QA request; story length=%s", len(request.story or ""))
         if self._chain is None:
             self._chain = get_qa_chain()
 

@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 
 from fastapi.testclient import TestClient
 
+from app.core.exceptions import UpstreamRateLimitError
 from app.main import app
 from app.schemas.qa import QAAnalysisResponse
 
@@ -41,10 +42,6 @@ class TestQAAnalysisEndpoint:
         client = TestClient(app)
         payload = {
             "story": "As a user, I want to reset my password",
-            "acceptance_criteria": [
-                "Email is sent",
-                "Link expires in 30 minutes",
-            ],
         }
 
         response = client.post("/api/v1/qa/analyze", json=payload)
@@ -59,7 +56,7 @@ class TestQAAnalysisEndpoint:
     def test_analyze_endpoint_missing_story(self) -> None:
         """POST without story returns validation error."""
         client = TestClient(app)
-        payload = {"acceptance_criteria": ["Some criteria"]}
+        payload = {}
 
         response = client.post("/api/v1/qa/analyze", json=payload)
 
@@ -68,14 +65,30 @@ class TestQAAnalysisEndpoint:
     def test_analyze_endpoint_empty_story(self) -> None:
         """POST with empty story returns validation error."""
         client = TestClient(app)
-        payload = {
-            "story": "",
-            "acceptance_criteria": ["Some criteria"],
-        }
+        payload = {"story": ""}
 
         response = client.post("/api/v1/qa/analyze", json=payload)
 
         assert response.status_code == 422
+
+    @patch("app.services.qa_service.get_qa_chain")
+    def test_analyze_endpoint_rate_limited_returns_429(self, mock_chain_factory: MagicMock) -> None:
+        """Provider rate limits are translated into HTTP 429 for clients."""
+        mock_chain = MagicMock()
+        mock_chain.invoke.side_effect = UpstreamRateLimitError(
+            "LLM provider is rate-limited right now. Please retry in a few seconds."
+        )
+        mock_chain_factory.return_value = mock_chain
+
+        client = TestClient(app)
+        payload = {
+            "story": "As a user, I want to reset my password",
+        }
+
+        response = client.post("/api/v1/qa/analyze", json=payload)
+
+        assert response.status_code == 429
+        assert "rate-limited" in response.json()["detail"]
 
     def test_analyze_endpoint_valid_minimal_request(self) -> None:
         """POST with only story (no criteria) is accepted."""

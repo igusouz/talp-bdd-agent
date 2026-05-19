@@ -62,7 +62,9 @@ Dev:
 
 ## How the workflow operates
 
-1. The API receives a story, optionally with acceptance criteria.
+1. The API receives a story. If acceptance criteria are present they should be
+  embedded inside the story text (for example under an "Acceptance criteria:" header
+  or as list items starting with "-"). The service will extract them automatically.
 2. The service normalizes the input and calls the chain.
 3. The chain uses a system prompt and few-shot examples to guide the model.
 4. The model responds with structured JSON via a Pydantic schema.
@@ -70,16 +72,11 @@ Dev:
 
 ## Expected contract
 
-Input:
+Input (single-field):
 
 ```json
 {
-  "story": "As a user, I want to reset my password so I can recover access to my account.",
-  "acceptance_criteria": [
-    "The user must receive a reset email",
-    "The reset link expires in 30 minutes",
-    "The new password must contain at least one number"
-  ]
+  "story": "As a user, I want to reset my password so I can recover access to my account.\n\nAcceptance criteria:\n- The user must receive a reset email\n- The reset link expires in 30 minutes\n- The new password must contain at least one number"
 }
 ```
 

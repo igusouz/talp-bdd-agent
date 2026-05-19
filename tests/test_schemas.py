@@ -15,18 +15,7 @@ class TestQARequest:
         """Story alone is sufficient for a valid request."""
         request = QARequest(story="As a user, I want to login")
         assert request.story == "As a user, I want to login"
-        assert request.acceptance_criteria == []
 
-    def test_valid_request_with_story_and_criteria(self) -> None:
-        """Request with story and acceptance criteria is valid."""
-        request = QARequest(
-            story="As a user, I want to reset my password",
-            acceptance_criteria=[
-                "Reset email is sent",
-                "Link expires in 30 minutes",
-            ],
-        )
-        assert len(request.acceptance_criteria) == 2
 
     def test_missing_story_raises_validation_error(self) -> None:
         """Story is required and cannot be empty."""
@@ -36,7 +25,7 @@ class TestQARequest:
     def test_story_field_is_required(self) -> None:
         """Story field is mandatory."""
         with pytest.raises(ValidationError):
-            QARequest(acceptance_criteria=["Some criteria"])  # type: ignore
+            QARequest()
 
 
 class TestBDDScenario:

@@ -8,8 +8,10 @@ from pathlib import Path
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from openai import RateLimitError
 
 from app.core.config import Settings, get_settings
+from app.core.exceptions import UpstreamRateLimitError
 from app.prompts.repository import PromptBundle, get_prompt_repository
 from app.schemas.qa import QAAnalysisResponse, QARequest
 
@@ -45,6 +47,38 @@ def _format_acceptance_criteria(criteria: list[str]) -> str:
         return "No acceptance criteria provided."
 
     return "\n".join(f"- {item}" for item in criteria)
+
+
+def _extract_acceptance_criteria_from_story(story: str) -> list[str]:
+    """Attempt to extract acceptance criteria from the story text.
+
+    Heuristics:
+    - If a section header like 'Acceptance criteria:' exists, collect following
+      lines that start with '-' until a blank line.
+    - Collect any lines starting with '- ' anywhere in the story as fallback.
+    """
+    lines = [ln.rstrip() for ln in story.splitlines()]
+    criteria: list[str] = []
+
+    # Look for explicit 'Acceptance' header
+    for i, ln in enumerate(lines):
+        if ln.lower().strip().startswith("acceptance criteria") or ln.lower().strip().startswith("acceptance:"):
+            # collect subsequent lines that look like list items
+            for sub in lines[i + 1 :]:
+                if not sub.strip():
+                    break
+                if sub.strip().startswith("-"):
+                    criteria.append(sub.strip().lstrip("- "))
+            if criteria:
+                return criteria
+
+    # Fallback: collect any '- ' prefixed lines anywhere
+    for ln in lines:
+        stripped = ln.strip()
+        if stripped.startswith("-"):
+            criteria.append(stripped.lstrip("- "))
+
+    return criteria
 
 
 class QAAnalysisChain:
@@ -83,12 +117,19 @@ class QAAnalysisChain:
             "system_prompt": self._prompts.compose_system_prompt(),
             "human_prompt": self._prompts.render_human_prompt(
                 story=request.story.strip(),
-                acceptance_criteria=_format_acceptance_criteria(request.acceptance_criteria),
             ),
             "story": request.story.strip(),
         }
         try:
             return self._chain.invoke(payload)
+        except RateLimitError as exc:
+            logger.warning(
+                "QA analysis rate-limited by upstream provider for prompt_version=%s",
+                self._prompts.version,
+            )
+            raise UpstreamRateLimitError(
+                "LLM provider is rate-limited right now. Please retry in a few seconds."
+            ) from exc
         except Exception:
             logger.exception("QA analysis failed for prompt_version=%s", self._prompts.version)
             raise

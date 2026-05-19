@@ -9,12 +9,7 @@ from app.schemas.bdd import BDDScenario
 
 class QARequest(BaseModel):
     """Incoming payload for story analysis."""
-
     story: str = Field(min_length=1, description="User story to analyze.")
-    acceptance_criteria: list[str] = Field(
-        default_factory=list,
-        description="Optional acceptance criteria associated with the story.",
-    )
 
 
 class QAAnalysisResponse(BaseModel):

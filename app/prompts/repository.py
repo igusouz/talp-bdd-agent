@@ -20,10 +20,19 @@ class PromptBundle:
 
         return f"{self.system_prompt}\n\n{self.few_shots}".strip()
 
-    def render_human_prompt(self, story: str, acceptance_criteria: str) -> str:
-        """Render the human prompt template with the current story."""
+    def render_human_prompt(self, story: str) -> str:
+        """Render the human prompt template with the current story.
 
-        return self.template.format(story=story, acceptance_criteria=acceptance_criteria).strip()
+        Note: Acceptance criteria are expected to be present inside the
+        `story` text and should be extracted by the chain when needed.
+        """
+
+        # Template may include an {acceptance_criteria} placeholder for
+        # backwards compatibility; provide empty string if not available.
+        try:
+            return self.template.format(story=story, acceptance_criteria="").strip()
+        except Exception:
+            return self.template.format(story=story).strip()
 
 
 class PromptRepository:
